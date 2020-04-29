@@ -1,5 +1,7 @@
 import React from 'react'
 
+const cc = require('cryptocompare');
+
 export const AppContext = React.createContext(); // creating and exporting the context, to use it in teh consumers in the child components
 
 export class AppProvider extends React.Component {
@@ -13,6 +15,15 @@ export class AppProvider extends React.Component {
             setPage: this.setPage, // Passing in the updater function, so it can be used in the consumer components
             confirmFavourites: this.confirmFavourites
         }
+    }
+
+    componentDidMount() {
+        this.fetchCoins();
+    }
+
+    fetchCoins = async () => {
+        let coinList = (await cc.coinList()).Data; // await = > waiting for the Promise = cc.coinList() =>  to resolve
+        this.setState({ coinList });
     }
 
     confirmFavourites = () => {
