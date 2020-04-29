@@ -5,12 +5,13 @@
 import React from 'react'
 import WelcomeMsg from './WelcomeMsg'
 import ConfirmButton from './ConfirmButton'
+import Page from '../Shared/Page'
 
 export default function index() {
     return (
-        <div>
+        <Page name="settings">
             <WelcomeMsg />
             <ConfirmButton />
-        </div>
+        </Page>
     )
 }
