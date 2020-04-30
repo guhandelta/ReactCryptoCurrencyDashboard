@@ -18,11 +18,11 @@ export const StyledDeleteIcon = styled.div`
     }
 `
 
-export default function ({ name, symbol, favourites }) { // favourites => to check if it is in the favourites section
+export default function ({ name, symbol, favouriteSection }) {
     return (
         <StyledCoinHeaderGrid>
             <div> {name} </div>
-            {favourites ? (
+            {favouriteSection ? (
                 <StyledDeleteIcon> X </StyledDeleteIcon>
             ) : (
                     <StyledCoinSymbol> {symbol} </StyledCoinSymbol>

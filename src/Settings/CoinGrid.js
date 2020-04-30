@@ -10,16 +10,17 @@ export const StyledCoindGrid = styled.div`
     grid-gap: 20px;
     margin-top: 40px;
 `
-function getCoinsToDisplay(coinList, favourites) {
-    return Object.keys(coinList).slice(0, favourites ? 10 : 100);
+function getCoinsToDisplay(coinList, favouriteSection, favourites) {
+    return favouriteSection ? favourites : Object.keys(coinList).slice(0, 100);
+    //Display the favourites in the favouriteSection, instead os slicing the list
 }
 
-export default function ({ favourites }) {
+export default function ({ favouriteSection }) {
     return (
         <AppContext.Consumer>
-            {({ coinList }) =>
+            {({ coinList, favourites }) =>
                 <StyledCoindGrid>
-                    {getCoinsToDisplay(coinList, favourites).map(coinKey => <CoinTile favourites={favourites} coinKey={coinKey} />)}
+                    {getCoinsToDisplay(coinList, favouriteSection, favourites).map(coinKey => <CoinTile favouriteSection={favouriteSection} coinKey={coinKey} />)}
                 </StyledCoindGrid>
             }
         </AppContext.Consumer>

@@ -18,7 +18,7 @@ export const DeletableTile = styled(SelectableTile)`
         ${redBoxShadow};
     }
 `
-export const DisbledTile = styled(Tile)`
-    pointer-events: none;
+export const DisabledTile = styled(Tile)`
+    pointer-events: none; /*Does not allow selecting the coins*/
     opacity: 0.4;
 `
