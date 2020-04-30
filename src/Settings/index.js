@@ -8,6 +8,7 @@ export default function index() {
     return (
         <Page name="settings">
             <WelcomeMsg />
+            <CoinGrid favourites />
             <ConfirmButton />
             <CoinGrid />
         </Page>
