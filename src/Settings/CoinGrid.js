@@ -16,17 +16,22 @@ export const StyledCoindGrid = styled.div`
     grid-gap: 20px;
     margin-top: 40px;
 `
-function getCoinsToDisplay(coinList, favouriteSection, favourites) {
-    return favouriteSection ? favourites : Object.keys(coinList).slice(0, 100);
+function getFilteredCoinList(coinList, filteredCoins) {// Helper fn() to check if filteredCoins exists
+    return (filteredCoins && Object.keys(filteredCoins)) ||//return filteredCoins & the keys of those coins, as filteredCoins is a keyed list
+        Object.keys(coinList).slice(0, 100) //Return the sliced list of 1st 100 keys, if filtered doesn't exist
+}
+function getCoinsToDisplay(coinList, favouriteSection, favourites, filteredCoins) {
+    return favouriteSection ? favourites : getFilteredCoinList(coinList, filteredCoins);
+    // return favouriteSection ? favourites : Object.keys(coinList).slice(0, 100); > Instead of just displaying a sliced coinList, the-
+    //- filteredCoins may be checked if it exists(a helper fn() is used here for checking), and display that instead of a sliced list
     //Display the favourites in the favouriteSection, instead os slicing the list
 }
-
 export default function ({ favouriteSection }) {
     return (
         <AppContext.Consumer>
-            {({ coinList, favourites }) =>
+            {({ coinList, favourites, filteredCoins }) =>
                 <StyledCoindGrid>
-                    {getCoinsToDisplay(coinList, favouriteSection, favourites).map(coinKey => <CoinTile favouriteSection={favouriteSection} coinKey={coinKey} />)}
+                    {getCoinsToDisplay(coinList, favouriteSection, favourites, filteredCoins).map(coinKey => <CoinTile favouriteSection={favouriteSection} coinKey={coinKey} />)}
                 </StyledCoindGrid>
             }
         </AppContext.Consumer>
