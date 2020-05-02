@@ -26,12 +26,38 @@ export class AppProvider extends React.Component {
     }
 
     componentDidMount() {
+        //Fetch the coins and the prices of the coins on Page visit
         this.fetchCoins();
+        this.fetchPrices();
     }
 
     fetchCoins = async () => {
         let coinList = (await cc.coinList()).Data; // await = > waiting for the Promise = cc.coinList() =>  to resolve
         this.setState({ coinList });
+    }
+
+    fetchPrices = async () => {
+        //To prevent fetching the prices of the dummy favourites, in the initial state, that are not the user's favourite and which-
+        //- have also not been set, on the user's first visit to the page
+        if (this.state.firstVisit) return;
+        // This statement gets resolved after the promises in priceFetch() are resolved after those promises have all been resolved,
+        let prices = await this.priceFetch();//This actaully returns a promise array, which requires to be resolved separately
+        console.log(prices);
+        this.setState({ prices });
+    }
+
+    priceFetch = async () => {//This will initially be an array of promises, 
+        let coinPriceData = [];
+        for (let i = 0; i < this.state.favourites.length; i++) {
+            try {
+                // Fetch the Coin Price data using CryptoCompare's priceFull()
+                let priceData = await cc.priceFull(this.state.favourites[i], 'USD') //arg1 :> Coin Symbols || arg2 :> Currency 
+                coinPriceData.push(priceData); //Push the coin price data into the array, after the promise has been resolved
+            } catch (e) {
+                console.warn('Error in fetching the prices');
+            }
+        }
+        return coinPriceData;
     }
 
     addCoin = key => {
@@ -55,6 +81,8 @@ export class AppProvider extends React.Component {
         this.setState({
             firstVisit: false,
             page: 'dashboard'
+        }, () => { //Fetch prices callback to fetch the prices of the favourite coins, to display it on the Dashboard
+            this.fetchPrices();
         });
         localStorage.setItem('cryptoDash', JSON.stringify({
             favourites: this.state.favourites
