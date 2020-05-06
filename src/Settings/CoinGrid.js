@@ -31,7 +31,7 @@ export default function ({ favouriteSection }) {
         <AppContext.Consumer>
             {({ coinList, favourites, filteredCoins }) =>
                 <StyledCoindGrid>
-                    {getCoinsToDisplay(coinList, favouriteSection, favourites, filteredCoins).map(coinKey => <CoinTile favouriteSection={favouriteSection} coinKey={coinKey} />)}
+                    {getCoinsToDisplay(coinList, favouriteSection, favourites, filteredCoins).map(coinKey => <CoinTile key={coinKey} favouriteSection={favouriteSection} coinKey={coinKey} />)}
                 </StyledCoindGrid>
             }
         </AppContext.Consumer>

@@ -42,6 +42,7 @@ export class AppProvider extends React.Component {
         if (this.state.firstVisit) return;
         // This statement gets resolved after the promises in priceFetch() are resolved after those promises have all been resolved,
         let prices = await this.priceFetch();//This actaully returns a promise array, which requires to be resolved separately
+        prices = prices.filter(price => Object.keys(price).length);
         console.log(prices);
         this.setState({ prices });
     }
