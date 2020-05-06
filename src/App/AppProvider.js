@@ -21,7 +21,8 @@ export class AppProvider extends React.Component {
             removeCoin: this.removeCoin,
             isInFavourites: this.isInFavourites,
             confirmFavourites: this.confirmFavourites,
-            setFilteredCoins: this.setFilteredCoins
+            setFilteredCoins: this.setFilteredCoins,
+            setCurrentFavourite: this.setCurrentFavourite
         }
     }
 
@@ -79,15 +80,30 @@ export class AppProvider extends React.Component {
     isInFavourites = key => _.includes(this.state.favourites, key) // _.includes() checks if the give key is in that array
 
     confirmFavourites = () => {
+        let currentFavourite = this.state.favourites[0];
         this.setState({
             firstVisit: false,
-            page: 'dashboard'
+            page: 'dashboard',
+            currentFavourite
         }, () => { //Fetch prices callback to fetch the prices of the favourite coins, to display it on the Dashboard
             this.fetchPrices();
         });
+        // Storing the favourite coins in the local storage to pull in these values during initial page load
         localStorage.setItem('cryptoDash', JSON.stringify({
-            favourites: this.state.favourites
+            favourites: this.state.favourites,
+            currentFavourite
         }));
+    }
+
+    setCurrentFavourite = (sym) => {
+        this.setState({ //Setting the state locally to the app, on the currentFavourite
+            currentFavourite: sym
+        });
+        //Setting the local storage to the stringified version of thay object 
+        localStorage.setItem('cryptoDash', JSON.stringify({
+            ...JSON.parse(localStorage.getItem('cryptoDash')),//Parsing the local storage and merge that in with the new currentFavourite
+            currentFavourite: sym
+        }))
     }
 
     savedSettings() {
@@ -101,8 +117,8 @@ export class AppProvider extends React.Component {
             }
         }
         // If a returning user visits the page, pull in the favourite coisn from the cryptoDashData and return it
-        let { favourites } = cryptoDashData;
-        return { favourites }; // This will overwrite the state variable
+        let { favourites, currentFavourite } = cryptoDashData; // currentFavourite will be 0, if the page is loaded for the 1st time
+        return { favourites, currentFavourite }; // This will overwrite the state variable
     }
 
     setPage = page => this.setState({ page });
