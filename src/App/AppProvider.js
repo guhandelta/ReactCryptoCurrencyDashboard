@@ -170,7 +170,7 @@ export class AppProvider extends React.Component {
 
     chartSelectionHandler = (value) => {
         console.log(value);
-        this.setState({ timeInterval: value, historicalData: null }, this.historicalCoinData);
+        this.setState({ timeInterval: value, historicalData: null }, this.fetchHistorical);
     }
 
     render() {
