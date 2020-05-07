@@ -17,6 +17,7 @@ export class AppProvider extends React.Component {
             page: 'dashboard',
             // default to the dashboard page, unless the user has any local storage data => new user
             favourites: ['BTC', 'ETH', 'XMR', 'DOGE'],
+            timeInterval: 'months',
             ...this.savedSettings(), // This fn(), when called, will spread the results over the rest of the previous properties here
             setPage: this.setPage, // Passing in the updater function, so it can be used in the consumer components
             addCoin: this.addCoin,
@@ -24,7 +25,8 @@ export class AppProvider extends React.Component {
             isInFavourites: this.isInFavourites,
             confirmFavourites: this.confirmFavourites,
             setFilteredCoins: this.setFilteredCoins,
-            setCurrentFavourite: this.setCurrentFavourite
+            setCurrentFavourite: this.setCurrentFavourite,
+            chartSelectionHandler: this.chartSelectionHandler
         }
     }
 
@@ -57,8 +59,9 @@ export class AppProvider extends React.Component {
             {
                 name: this.state.currentFavourite,
                 data: results.map((value, index) => [ //Return an array of x,y coordinates || x -> Date , y -> Price
-                    moment().subtract({ months: TIME_UNITS - index }).valueOf(),
+                    moment().subtract({ [this.state.timeInterval]: TIME_UNITS - index }).valueOf(),
                     //index increments form 0 - 10, by which the prices are extracted from teh response
+                    //this.state.timeInterval -> updates the chart data as per the time units choosen on the dropdown
                     value.USD
                 ])
             }
@@ -89,8 +92,8 @@ export class AppProvider extends React.Component {
                     this.state.currentFavourite,
                     ['USD'],
                     moment()
-                        .subtract({ months: units }) //subtract 10 months
-                        .toDate()// Put it in a JavaScript Date
+                        .subtract({ [this.state.timeInterval]: units }) //subtract 10 months
+                        .toDate()// Putting it in a JavaScript Date
                 )
             )
         }
@@ -164,6 +167,11 @@ export class AppProvider extends React.Component {
     setPage = page => this.setState({ page });
 
     setFilteredCoins = (filteredCoins) => this.setState({ filteredCoins })
+
+    chartSelectionHandler = (value) => {
+        console.log(value);
+        this.setState({ timeInterval: value, historicalData: null }, this.historicalCoinData);
+    }
 
     render() {
         return (
