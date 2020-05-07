@@ -18,6 +18,9 @@ const ControlButonElem = styled.div`
         color: red;
         text-shadow: 0px 0px 0px gold;
     `}
+    ${props => props.hidden && css`
+        display:none;
+    `}
 `
 
 function toProperCase(lower) {
@@ -28,10 +31,11 @@ function ControlButton({ name }) {
     // Consumer takes in a callback fn() || The page is checked to see if it is active, by verfying if the page === name that is passed in
     return (
         <AppContext.Consumer>
-            {({ page, setPage }) => (
+            {({ firstVisit, page, setPage }) => (
                 <ControlButonElem
                     active={page === name}
                     onClick={() => setPage(name)}
+                    hidden={firstVisit && name === 'dashboard'}
                 >
                     {toProperCase(name)}
                 </ControlButonElem>
