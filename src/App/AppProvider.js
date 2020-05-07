@@ -1,11 +1,13 @@
 import React from 'react'
 import _ from 'lodash'
+import moment from 'moment' //TO manipulate dates
 
 const cc = require('cryptocompare');
 
 export const AppContext = React.createContext(); // creating and exporting the context, to use it in teh consumers in the child components
 
 const MAX_FAVOURITES = 10;
+const TIME_UNITS = 10;
 
 export class AppProvider extends React.Component {
     //The provider will be exported in the main wrapper, to provide the state to the other components
@@ -30,6 +32,7 @@ export class AppProvider extends React.Component {
         //Fetch the coins and the prices of the coins on Page visit
         this.fetchCoins();
         this.fetchPrices();
+        this.fetchHistorical();
     }
 
     fetchCoins = async () => {
@@ -44,8 +47,23 @@ export class AppProvider extends React.Component {
         // This statement gets resolved after the promises in priceFetch() are resolved after those promises have all been resolved,
         let prices = await this.priceFetch();//This actaully returns a promise array, which requires to be resolved separately
         prices = prices.filter(price => Object.keys(price).length);
-        console.log(prices);
         this.setState({ prices });
+    }
+
+    fetchHistorical = async () => {
+        if (this.state.firstVisit) return;
+        let results = await this.historicalCoinData();
+        let historicalData = [
+            {
+                name: this.state.currentFavourite,
+                data: results.map((value, index) => [ //Return an array of x,y coordinates || x -> Date , y -> Price
+                    moment().subtract({ months: TIME_UNITS - index }).valueOf(),
+                    //index increments form 0 - 10, by which the prices are extracted from teh response
+                    value.USD
+                ])
+            }
+        ]
+        this.setState({ historicalData });
     }
 
     priceFetch = async () => {//This will initially be an array of promises, 
@@ -60,6 +78,24 @@ export class AppProvider extends React.Component {
             }
         }
         return coinPriceData;
+    }
+
+    historicalCoinData = () => {
+        let promises = [];
+        for (let units = TIME_UNITS; units > 0; units--) {
+            promises.push( //Push a call to priceHistorical()
+                // priceHistorical() will take in the query, that's in the cryptoCompareAPI
+                cc.priceHistorical( //Pushing the fetched historical data into the promise array
+                    this.state.currentFavourite,
+                    ['USD'],
+                    moment()
+                        .subtract({ months: units }) //subtract 10 months
+                        .toDate()// Put it in a JavaScript Date
+                )
+            )
+        }
+        return Promise.all(promises);// Returns only when all the promises are resolved
+        //This historical fetch would be completed, when all the fetch have been resolved
     }
 
     addCoin = key => {
@@ -84,9 +120,11 @@ export class AppProvider extends React.Component {
         this.setState({
             firstVisit: false,
             page: 'dashboard',
-            currentFavourite
+            currentFavourite,
+            historicalData: null
         }, () => { //Fetch prices callback to fetch the prices of the favourite coins, to display it on the Dashboard
             this.fetchPrices();
+            this.fetchHistorical(); // Fetch the historical data, after confirming the favourites and setting the state
         });
         // Storing the favourite coins in the local storage to pull in these values during initial page load
         localStorage.setItem('cryptoDash', JSON.stringify({
@@ -97,8 +135,10 @@ export class AppProvider extends React.Component {
 
     setCurrentFavourite = (sym) => {
         this.setState({ //Setting the state locally to the app, on the currentFavourite
-            currentFavourite: sym
-        });
+            currentFavourite: sym,
+            historicalData: null //To clearout the historical data and render the chart for the current spotlight coin, without rendering-
+            //- the chart for the historical data for the previous choice.
+        }, this.fetchHistorical); //This callback fn() will fetch the historical data for the new favourite coin
         //Setting the local storage to the stringified version of thay object 
         localStorage.setItem('cryptoDash', JSON.stringify({
             ...JSON.parse(localStorage.getItem('cryptoDash')),//Parsing the local storage and merge that in with the new currentFavourite

@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactHighcharts from 'react-highcharts'
-import highchartsConfig from './HighChartsConfig'
+import highChartsConfig from './HighChartsConfig'
 import { AppContext } from '../App/AppProvider'
 import { Tile } from '../Shared/Tile'
 import HighChartsTheme from './HighChartsTheme'
@@ -10,9 +10,13 @@ ReactHighcharts.Highcharts.setOptions(HighChartsTheme);
 export default function () {
     return (
         <AppContext.Consumer>
-            {({ }) => //The chart should be returned through a callback fn()
+            {({ historicalData }) => //The chart should be returned through a callback fn()
                 <Tile>
-                    <ReactHighcharts config={highchartsConfig()} />
+                    {historicalData ?
+                        <ReactHighcharts config={highChartsConfig(historicalData)} />
+                        :
+                        <div>Loading Historical Data</div>
+                    }
                 </Tile>
             }
         </AppContext.Consumer>
